@@ -32,7 +32,10 @@ export default {
       type: Boolean,
       default: false,
     },
-
+    allowSpace: {
+      type: Boolean,
+      default: false,
+    },
     filteringDisabled: {
       type: Boolean,
       default: false,
@@ -273,6 +276,10 @@ export default {
     getLastSearchText (caretIndex, keyIndex) {
       if (keyIndex !== -1) {
         const searchText = this.getValue().substring(keyIndex + 1, caretIndex)
+
+        if (props.allowSpace) {
+          return searchText.trim()
+        }
         // If there is a space we close the menu
         if (!/\s/.test(searchText)) {
           return searchText
@@ -379,29 +386,31 @@ export default {
         </div>
 
         <template v-else>
-          <div
-            v-for="(item, index) of displayedItems"
-            :key="index"
-            class="mention-item"
-            :class="{
-              'mention-selected': selectedIndex === index,
-            }"
-            @mouseover="selectedIndex = index"
-            @mousedown="applyMention(index)"
-          >
-            <slot
-              :name="`item-${key || oldKey}`"
-              :item="item"
-              :index="index"
+          <div class="item-list">
+            <div
+              v-for="(item, index) of displayedItems"
+              :key="index"
+              class="mention-item"
+              :class="{
+                'mention-selected': selectedIndex === index,
+              }"
+              @mouseover="selectedIndex = index"
+              @mousedown="applyMention(index)"
             >
               <slot
-                name="item"
+                :name="`item-${key || oldKey}`"
                 :item="item"
                 :index="index"
               >
-                {{ item.label || item.value }}
+                <slot
+                  name="item"
+                  :item="item"
+                  :index="index"
+                >
+                  {{ item.label || item.value }}
+                </slot>
               </slot>
-            </slot>
+            </div>
           </div>
         </template>
       </template>
